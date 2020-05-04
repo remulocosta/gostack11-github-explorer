@@ -1,18 +1,26 @@
 import React, { useState, useEffect, FormEvent } from 'react';
-import { FiChevronRight } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
+import { useDrop } from 'react-dnd';
+import { FiTrash2 } from 'react-icons/fi';
+
+import { uuid } from 'uuidv4';
 
 import logoImg from '../../assets/logo.svg';
 import api from '../../services/api';
-import { Title, Form, Repositories, Error } from './styles';
+import Card from '../Card';
+import { Title, Form, Repositories, Error, ContainerDel } from './styles';
 
-interface Repository {
+export interface Repository {
+  uuid: string;
   full_name: string;
   description: string;
   owner: {
     login: string;
     avatar_url: string;
   };
+}
+
+interface Repo {
+  repo: Repository;
 }
 
 const Dashboard: React.FC = () => {
@@ -26,7 +34,39 @@ const Dashboard: React.FC = () => {
     if (storagedRepositories) {
       return JSON.parse(storagedRepositories);
     }
+    return [];
   });
+
+  async function handleRemoveRepository(id: string): Promise<void> {
+    try {
+      const repositoriesFilter = repositories.filter(repo => repo.uuid !== id);
+
+      setRepositories(repositoriesFilter);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log('Falha ao excluir o repositório');
+    }
+  }
+
+  const [{ canDrop, isOver }, drop] = useDrop({
+    accept: 'CARD',
+    drop: item => {
+      const { uuid: id } = JSON.parse(JSON.stringify(item));
+      handleRemoveRepository(id);
+    },
+    collect: monitor => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  });
+
+  const isActive = canDrop && isOver;
+  let opacity = 0.0;
+  if (isActive) {
+    opacity = 0.8;
+  } else if (canDrop) {
+    opacity = 0.3;
+  }
 
   useEffect(() => {
     localStorage.setItem(
@@ -47,8 +87,8 @@ const Dashboard: React.FC = () => {
 
     try {
       const response = await api.get<Repository>(`repos/${newRepo}`);
-
       const repository = response.data;
+      repository.uuid = uuid();
 
       setRepositories([...repositories, repository]);
       setNewRepo('');
@@ -73,24 +113,15 @@ const Dashboard: React.FC = () => {
       </Form>
 
       {inputError && <Error>{inputError}</Error>}
+      {!!repositories.length && (
+        <ContainerDel ref={drop} hasOpacity={opacity}>
+          <FiTrash2 size={80} />
+        </ContainerDel>
+      )}
 
       <Repositories>
         {repositories.map(repository => (
-          <Link
-            key={repository.full_name}
-            to={`/repositories/${repository.full_name}`}
-          >
-            <img
-              src={repository.owner.avatar_url}
-              alt={repository.owner.login}
-            />
-            <div>
-              <strong>{repository.full_name}</strong>
-              <p>{repository.description}</p>
-            </div>
-
-            <FiChevronRight size={20} />
-          </Link>
+          <Card key={repository.uuid} repository={repository} />
         ))}
       </Repositories>
     </>

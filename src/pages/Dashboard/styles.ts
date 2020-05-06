@@ -1,26 +1,35 @@
 import { shade } from 'polished';
-import styled, { css } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 interface FormProps {
   hasError: boolean;
+  loading: boolean;
 }
 
 interface ContainerProps {
   hasOpacity: number;
 }
 
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
 export const Title = styled.h1`
   font-size: 48px;
   color: #3a3a3a;
   max-width: 450px;
   line-height: 56px;
-
-  margin-top: 30px;
+  margin-top: 40px;
 `;
 
 export const Form = styled.form<FormProps>`
-  position: relative;
-  margin-top: 30px;
+  margin-top: 40px;
   max-width: 700px;
 
   display: flex;
@@ -33,7 +42,6 @@ export const Form = styled.form<FormProps>`
     border-radius: 5px 0 0 5px;
     color: #3a3a3a;
     border: 2px solid #fff;
-    box-shadow: 0 1px 4px 0 rgba(192, 208, 230, 0.5);
 
     ${props =>
       props.hasError &&
@@ -46,6 +54,14 @@ export const Form = styled.form<FormProps>`
     }
   }
 
+  ${props =>
+    props.loading &&
+    css`
+      button svg {
+        animation: ${rotate} 2s linear infinite;
+      }
+    `}
+
   button {
     width: 210px;
     height: 70px;
@@ -55,10 +71,16 @@ export const Form = styled.form<FormProps>`
     color: #fff;
     font-weight: bold;
     transition: background-color 0.2s;
-    box-shadow: 0 1px 4px 0 rgba(192, 208, 230, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &:hover {
       background: ${shade(0.2, '#04d361')};
+    }
+
+    svg {
+      margin-right: 10px;
     }
   }
 `;
@@ -70,30 +92,36 @@ export const Error = styled.span`
 `;
 
 export const Repositories = styled.div`
-  margin-top: 10px;
+  margin-top: 50px;
   max-width: 700px;
 `;
 
 export const ContainerDel = styled.div<ContainerProps>`
+  position: fixed;
+  z-index: 10;
+  top: 0;
+  clear: both;
+  margin-bottom: 0;
+  width: 100%;
+
   display: flex;
   height: 120px;
-  max-width: 700px;
   border: 3px dashed rgba(255, 0, 0, 0.3);
   border-radius: 0;
-  background: rgba(255, 0, 0, 0.1);
-  margin-top: 16px;
+  background: rgba(255, 0, 0, 0.2);
   align-items: center;
   justify-content: center;
   opacity: 0;
+  left: 0;
+
+  svg {
+    color: red;
+    opacity: 0.4;
+  }
 
   ${props =>
     props.hasOpacity &&
     css`
       opacity: ${props.hasOpacity};
     `}
-
-  svg {
-    color: red;
-    opacity: 0.4;
-  }
 `;

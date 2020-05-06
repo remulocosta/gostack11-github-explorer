@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 
 import { Container } from './styles';
 
-interface Owner {
-  login: string;
-  avatar_url: string;
-}
+// interface Owner {
+//   login: string;
+//   avatar_url: string;
+// }
 
 export interface Repository {
   uuid: string;

@@ -30,6 +30,8 @@
       "prettier"
   ],
   "rules": {
+    "no-alert": "off",
+    "no-console": "off",
     "prettier/prettier": "error",
     "react/jsx-props-no-spreading": "off",
     "react/prop-types": "off",

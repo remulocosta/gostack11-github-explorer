@@ -16,7 +16,6 @@ export const Container = styled.div<ContainerProps>`
     padding: 24px;
     display: block;
     text-decoration: none;
-    box-shadow: 0 1px 4px 0 rgba(192, 208, 230, 0.5);
 
     display: flex;
     align-items: center;
@@ -57,15 +56,16 @@ export const Container = styled.div<ContainerProps>`
   ${props =>
     props.isDragging &&
     css`
-      border: 3px dashed rgba(0, 0, 0, 0.2);
+      margin: 0px;
+      border: 2px dashed rgba(0, 0, 0, 0.2);
       border-radius: 0;
       background: transparent;
       box-shadow: none;
       cursor: grabbing;
-      margin-top: 16px;
 
       a {
         opacity: 0;
+        background: transparent;
       }
     `}
 `;

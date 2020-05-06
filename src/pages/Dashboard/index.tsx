@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useDrop } from 'react-dnd';
-import { FiTrash2 } from 'react-icons/fi';
+import { FiTrash2, FiSearch, FiLoader } from 'react-icons/fi';
 
 import { uuid } from 'uuidv4';
 
@@ -19,13 +19,10 @@ export interface Repository {
   };
 }
 
-interface Repo {
-  repo: Repository;
-}
-
 const Dashboard: React.FC = () => {
   const [newRepo, setNewRepo] = useState('');
   const [inputError, setInputError] = useState('');
+  const [loading, setLoading] = useState<boolean>(false);
   const [repositories, setRepositories] = useState<Repository[]>(() => {
     const storagedRepositories = localStorage.getItem(
       '@GithubExplorer:repositories',
@@ -37,13 +34,12 @@ const Dashboard: React.FC = () => {
     return [];
   });
 
-  async function handleRemoveRepository(id: string): Promise<void> {
+  async function handleDeleteRepository(id: string): Promise<void> {
     try {
       const repositoriesFilter = repositories.filter(repo => repo.uuid !== id);
 
       setRepositories(repositoriesFilter);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.log('Falha ao excluir o repositório');
     }
   }
@@ -52,7 +48,7 @@ const Dashboard: React.FC = () => {
     accept: 'CARD',
     drop: item => {
       const { uuid: id } = JSON.parse(JSON.stringify(item));
-      handleRemoveRepository(id);
+      handleDeleteRepository(id);
     },
     collect: monitor => ({
       isOver: monitor.isOver(),
@@ -63,9 +59,9 @@ const Dashboard: React.FC = () => {
   const isActive = canDrop && isOver;
   let opacity = 0.0;
   if (isActive) {
-    opacity = 0.8;
+    opacity = 0.9;
   } else if (canDrop) {
-    opacity = 0.3;
+    opacity = 0.4;
   }
 
   useEffect(() => {
@@ -85,6 +81,8 @@ const Dashboard: React.FC = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await api.get<Repository>(`repos/${newRepo}`);
       const repository = response.data;
@@ -93,7 +91,9 @@ const Dashboard: React.FC = () => {
       setRepositories([...repositories, repository]);
       setNewRepo('');
       setInputError('');
+      setLoading(false);
     } catch (err) {
+      setLoading(false);
       setInputError('Erro na busca por este repositório');
     }
   }
@@ -103,27 +103,39 @@ const Dashboard: React.FC = () => {
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore Repositórios do Github</Title>
 
-      <Form hasError={!!inputError} onSubmit={handleAddRepository}>
+      <Form
+        hasError={!!inputError}
+        onSubmit={handleAddRepository}
+        loading={loading}
+      >
         <input
           value={newRepo}
           onChange={e => setNewRepo(e.target.value)}
           placeholder="Digite o nome do repositório"
         />
-        <button type="submit">Pesquisar</button>
+        <button type="submit">
+          {loading ? (
+            <FiLoader color="#FFF" size={24} />
+          ) : (
+            <FiSearch color="#FFF" size={18} />
+          )}
+          Pesquisar
+        </button>
       </Form>
 
       {inputError && <Error>{inputError}</Error>}
-      {!!repositories.length && (
-        <ContainerDel ref={drop} hasOpacity={opacity}>
-          <FiTrash2 size={80} />
-        </ContainerDel>
-      )}
 
       <Repositories>
         {repositories.map(repository => (
           <Card key={repository.uuid} repository={repository} />
         ))}
       </Repositories>
+
+      {!!repositories.length && (
+        <ContainerDel ref={drop} hasOpacity={opacity}>
+          <FiTrash2 size={80} />
+        </ContainerDel>
+      )}
     </>
   );
 };

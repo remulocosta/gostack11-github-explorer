@@ -4,7 +4,7 @@ import { useRouteMatch, Link } from 'react-router-dom';
 
 import logoImg from '../../assets/logo.svg';
 import api from '../../services/api';
-import { Header, RepositoryInfo, Issues } from './style';
+import { Header, RepositoryInfo, Loading, Issues } from './style';
 
 interface RepositoryParams {
   repository: string;
@@ -34,6 +34,7 @@ interface Issue {
 const Repository: React.FC = () => {
   const [repository, setRepository] = useState<Repository | null>(null);
   const [issues, setIssues] = useState<Issue[]>([]);
+  const [loading, setLoading] = useState(true);
   const { params } = useRouteMatch<RepositoryParams>();
 
   useEffect(() => {
@@ -41,21 +42,22 @@ const Repository: React.FC = () => {
       setRepository(response.data);
     });
 
-    api.get(`repos/${params.repository}/issues`).then(response => {
-      setIssues(response.data);
-    });
+    api
+      .get(`repos/${params.repository}/issues`, {
+        params: {
+          per_page: 10,
+        },
+      })
+      .then(response => {
+        setIssues(response.data);
+      });
 
-    // async function loadData(): Promise<void> {
-    //   const [repository, issues] = await Promise.all([
-    //     api.get(`repos/${params.repository}`),
-    //     api.get(`repos/${params.repository}/issues`),
-    //   ]);
-    //   console.log(repository);
-    //   console.log(issues);
-    // }
-
-    // loadData();
+    setLoading(false);
   }, [params.repository]);
+
+  if (loading) {
+    return <Loading>Carregando</Loading>;
+  }
 
   return (
     <>

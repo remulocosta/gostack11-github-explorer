@@ -1,5 +1,15 @@
 import styled from 'styled-components';
 
+export const Loading = styled.div`
+  color: #333;
+  font-size: 30px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+`;
+
 export const Header = styled.header`
   display: flex;
   align-items: center;

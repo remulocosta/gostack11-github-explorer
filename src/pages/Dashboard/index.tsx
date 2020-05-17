@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
       <Form
         hasError={!!inputError}
         onSubmit={handleAddRepository}
-        loading={loading}
+        loading={!!loading}
       >
         <input
           value={newRepo}

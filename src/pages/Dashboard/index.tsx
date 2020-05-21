@@ -22,7 +22,7 @@ export interface Repository {
 const Dashboard: React.FC = () => {
   const [newRepo, setNewRepo] = useState('');
   const [inputError, setInputError] = useState('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [searching, setSearching] = useState('');
   const [repositories, setRepositories] = useState<Repository[]>(() => {
     const storagedRepositories = localStorage.getItem(
       '@GithubExplorer:repositories',
@@ -81,7 +81,7 @@ const Dashboard: React.FC = () => {
       return;
     }
 
-    setLoading(true);
+    setSearching('true');
 
     try {
       const response = await api.get<Repository>(`repos/${newRepo}`);
@@ -91,9 +91,9 @@ const Dashboard: React.FC = () => {
       setRepositories([...repositories, repository]);
       setNewRepo('');
       setInputError('');
-      setLoading(false);
+      setSearching('');
     } catch (err) {
-      setLoading(false);
+      setSearching('');
       setInputError('Erro na busca por este repositório');
     }
   }
@@ -106,7 +106,7 @@ const Dashboard: React.FC = () => {
       <Form
         hasError={!!inputError}
         onSubmit={handleAddRepository}
-        loading={!!loading}
+        loading={searching}
       >
         <input
           value={newRepo}
@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
           placeholder="Digite o nome do repositório"
         />
         <button type="submit">
-          {loading ? (
+          {searching ? (
             <FiLoader color="#FFF" size={24} />
           ) : (
             <FiSearch color="#FFF" size={18} />

@@ -3,7 +3,7 @@ import styled, { keyframes, css } from 'styled-components';
 
 interface FormProps {
   hasError: boolean;
-  loading: boolean;
+  loading: string;
 }
 
 interface ContainerProps {
